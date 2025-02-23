@@ -35,7 +35,7 @@ fi
 
 eval_script_path="sh/eval.sh"
 
-HDFS_HOME=TO_BE_DEFINED
+HDFS_HOME=/data/simpleRL-reason/train
 CKPT_PATH="checkpoints"
 base_checkpoint_path=${HDFS_HOME}/${CKPT_PATH}/${RUN_NAME}
 

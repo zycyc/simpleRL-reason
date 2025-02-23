@@ -573,7 +573,7 @@ def qwen_math_equal_subprocess(prediction, reference,  timeout_seconds=10):
         return False   
 
 import re 
-def preprocess_box_response_for_qwen_prompt(sequence, answer):
+def preprocess_box_response_for_qwen_prompt(sequence, answer, response_length):
     # breakpoint()
     model_output= re.sub(r'^.*?<\|im_start\|>assistant', '<|im_start|>assistant', sequence, flags=re.DOTALL,count = 1)
     stop_words = ["</s>", "<|im_end|>", "<|endoftext|>"] 
@@ -608,9 +608,13 @@ def preprocess_box_response_for_qwen_prompt(sequence, answer):
     # processed_solution = temp_response + "\n\n# Answer\n\n" + temp_answer + "<|reserved_special_token_0|>"
 
     # processed_solution = re.sub(r"<\|end_of_text\|>", "", processed_solution)
+
+    correct = 0.0
     
     if qwen_math_equal_subprocess(prediction=extract_answer, reference=answer):
-        box_match = 1.0
+        think_less_reward = (1 - response_length / 3000)
+        box_match = 1.0 + think_less_reward
+        correct = 1.0
     else:
         box_match = -0.5
         
@@ -618,7 +622,7 @@ def preprocess_box_response_for_qwen_prompt(sequence, answer):
         box_match = -1.0
         
 
-    return "", box_match
+    return "", box_match, correct
 
 
 
@@ -1029,6 +1033,7 @@ class NaiveExperienceMaker(ABC):
             value,
             None,
             None,
+            # None,
             attention_mask,
             action_mask,
             info,
@@ -1408,6 +1413,7 @@ class NaiveExperienceMakerORM(ABC):
             value,
             None,
             None,
+            # None,
             attention_mask,
             action_mask,
             info,
@@ -1803,6 +1809,7 @@ class NaiveExperienceMakerORM800K(ABC):
             value,
             None,
             None,
+            # None,
             attention_mask,
             action_mask,
             info,
@@ -2288,6 +2295,7 @@ class NaiveExperienceMakerPRM800K(ABC):
             value,
             None,
             None,
+            # None,
             attention_mask,
             action_mask,
             info,
@@ -2767,6 +2775,7 @@ class NaiveExperienceMakerPRM800K_BOX(ABC):
             value,
             None,
             None,
+            # None,
             attention_mask,
             action_mask,
             info,
@@ -3005,6 +3014,7 @@ class NaiveExperienceMakerBOX(ABC):
                     [each_reward.sum() for each_reward in reward], device=torch.cuda.current_device()
                 )
             experience.info["return"] = return_sums
+            # breakpoint()
             # remove unnecessary info
             experience.kl = None
             del experience.info["num_actions"]
@@ -3228,6 +3238,7 @@ class NaiveExperienceMakerBOX(ABC):
             value,
             None,
             None,
+            # None,
             attention_mask,
             action_mask,
             info,
@@ -3506,6 +3517,7 @@ class RemoteExperienceMaker(NaiveExperienceMaker):
             value,
             None,
             None,
+            # None,
             attention_mask,
             action_mask,
             info,
@@ -3703,6 +3715,7 @@ class RemoteExperienceMakerBOX(NaiveExperienceMakerBOX):
         num_actions = samples.num_actions
         packed_seq_lens = samples.packed_seq_lens
         answers = samples.answers
+        response_lengths = samples.response_length
 
         start = time.time()
         sequences_cpu, attention_mask_cpu = (
@@ -3734,8 +3747,9 @@ class RemoteExperienceMakerBOX(NaiveExperienceMakerBOX):
 
         # rewards
         r_refs = []
+        correct_refs = []
         # print("answers", len(answers))
-        # print("sequences_cpu", sequences_cpu.shape)
+        # print("sequences_cpu shape: ", sequences_cpu.shape)
         # support remote RM API with ray
         if not self.remote_rm_url:
             queries = self.tokenizer.batch_decode(sequences.cpu(), skip_special_tokens=False)
@@ -3748,23 +3762,25 @@ class RemoteExperienceMakerBOX(NaiveExperienceMakerBOX):
             
             processed_queries = []
             box_match_list = []
+            correct_list = []
             #math_equal_list = []
-            for query, answer in zip(queries, answers):
+            for query, answer, response_length in zip(queries, answers, response_lengths):
+                # breakpoint()
                 #temp_query = query
                 #query, box_match = preprocess_box_responsev1(query, answer)
                 
                 ## I will change the response rule-match reward. For my own experiment. By weihao, 12.25 2024
                 # query, box_match = preprocess_box_responsev4(query, answer) # original processing func 
-                query, box_match = preprocess_box_response_for_qwen_prompt(query, answer)
+                query, box_match, correct = preprocess_box_response_for_qwen_prompt(query, answer, response_length)
                 #query_v1, equal_match = preprocess_box_responsev1(temp_query, answer)
                 processed_queries.append(query)
                 box_match_list.append(box_match)
                 #math_equal_list.append(equal_match)
-                
+                correct_list.append(correct)
             queries = processed_queries
             
             final_answer_reward = torch.tensor(box_match_list, device=attention_mask.device)
-            
+            final_correct = torch.tensor(correct_list, device=attention_mask.device)
             #queries = [preprocess_orm800k_response(query) for query in queries]
             # print("pro_queries", queries[:5])
             # print("answers", answers[:10])
@@ -3773,6 +3789,7 @@ class RemoteExperienceMakerBOX(NaiveExperienceMakerBOX):
             #print("math_equal_list", math_equal_list[:5])
             
             r_refs.append(final_answer_reward)
+            correct_refs.append(final_correct)
             # for rm in self.reward_model:
             #     r_refs.append(rm.forward.remote(sequences_cpu, attention_mask_cpu, packed_seq_lens=packed_seq_lens))
                 
@@ -3809,11 +3826,14 @@ class RemoteExperienceMakerBOX(NaiveExperienceMakerBOX):
 
         base_action_log_probs, value = ref_values[0], ref_values[1]
         rewards = r_refs
+        corrects = correct_refs
         base_action_log_probs = base_action_log_probs.to(device)
         if value is not None:
             value = value.to(device)
         rewards = [r.to(device) for r in rewards]
         r = self.reward_fn(rewards) if len(rewards) > 0 else rewards[0]
+        corrects = [c.to(device) for c in corrects]
+        c = self.reward_fn(corrects) if len(corrects) > 0 else corrects[0]
 
         # avoid CUDA OOM when colocate models
         if self.strategy.args.colocate_critic_reward and not self.remote_rm_url:
@@ -3846,6 +3866,7 @@ class RemoteExperienceMakerBOX(NaiveExperienceMakerBOX):
         info = {
             "kl": kl_mean,
             "reward": r,
+            "correct": c,
             "response_length": samples.response_length,
             "total_length": samples.total_length,
             "num_actions": num_actions,
@@ -3861,6 +3882,7 @@ class RemoteExperienceMakerBOX(NaiveExperienceMakerBOX):
             value,
             None,
             None,
+            # None,
             attention_mask,
             action_mask,
             info,
@@ -4253,6 +4275,7 @@ class RemoteExperienceMakerPRMBOX(NaiveExperienceMakerPRM800K_BOX):
             value,
             None,
             None,
+            # None,
             attention_mask,
             action_mask,
             info,
@@ -4644,6 +4667,7 @@ class RemoteExperienceMakerORMBOX(NaiveExperienceMakerBOX):
             value,
             None,
             None,
+            # None,
             attention_mask,
             action_mask,
             info,

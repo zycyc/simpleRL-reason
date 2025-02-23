@@ -1,8 +1,8 @@
 
-HDFS_HOME=TO_BE_DEFINED
-RUN_NAME=Qwen2.5-Math-7B_ppo_from_base_math_lv35
+HDFS_HOME=/data/simpleRL-reason/train
+RUN_NAME=Qwen2.5-Math-7B_ppo_from_base_math_lv35_quicker_experiment
 
-python3 openrlhf/cli/train_ppo_ray_box.py \
+TOKENIZERS_PARALLELISM=True python3 openrlhf/cli/train_ppo_ray_box.py \
     --ref_num_nodes 1 \
     --ref_num_gpus_per_node 2 \
     --reward_num_nodes 0 \
@@ -11,17 +11,17 @@ python3 openrlhf/cli/train_ppo_ray_box.py \
     --critic_num_gpus_per_node 2 \
     --actor_num_nodes 1 \
     --actor_num_gpus_per_node 2 \
-    --vllm_num_engines 2 \
+    --vllm_num_engines 4 \
     --vllm_tensor_parallel_size 1 \
     --colocate_actor_ref \
-    --pretrain $HDFS_HOME/model_hub/models--Qwen--Qwen2.5-Math-7B/snapshots/b101308fe89651ea5ce025f25317fea6fc07e96e \
+    --pretrain $HDFS_HOME/model_hub/models--Qwen--Qwen2.5-Math-7B/ \
     --save_path $HDFS_HOME/checkpoints/$RUN_NAME \
-    --micro_train_batch_size 2 \
+    --micro_train_batch_size 8 \
     --train_batch_size 128 \
-    --micro_rollout_batch_size 2 \
+    --micro_rollout_batch_size 16 \
     --rollout_batch_size 1024 \
     --temperature 0.6 \
-    --n_samples_per_prompt 8 \
+    --n_samples_per_prompt 1 \
     --max_samples 100000 \
     --max_epochs 1 \
     --num_episodes 20 \
@@ -36,11 +36,12 @@ python3 openrlhf/cli/train_ppo_ray_box.py \
     --input_key input \
     --normalize_reward \
     --flash_attn \
+    --actor_init_on_gpu \
     --adam_offload \
     --gradient_checkpointing \
     --save_steps 4 \
     --load_checkpoint \
-    --use_wandb YOUR_WANDB_KEY \
+    --use_wandb 5fb2c3eb35cb3bc0124a02069ce91eedc6570e5a \
     --wandb_run_name $RUN_NAME \
     --ckpt_path $HDFS_HOME/checkpoints/$RUN_NAME  \
     --max_ckpt_num 20000
