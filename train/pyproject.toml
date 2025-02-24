@@ -11,17 +11,17 @@ requires-python = ">=3.11,<3.12"
 dependencies = [
     "accelerate",
     "bitsandbytes",
-    "datasets",
+    "datasets==3.3.2",
     "deepspeed",
     "einops",
     "isort",
     "jsonlines",
     "loralib",
-    "vllm",
+    "vllm==0.7.1",
     "optimum",
     "packaging",
     "peft",
-    "ray",
+    "ray==2.42.0",
     "tensorboard",
     "torch==2.5.1",
     "torchmetrics",
@@ -41,6 +41,13 @@ no-build-isolation-package = ["flash-attn"]
 
 [tool.setuptools]
 packages = ["openrlhf"]
+
+# https://docs.astral.sh/uv/concepts/projects/dependencies/#development-dependencies
+[dependency-groups]
+dev = [
+    "pyright==1.1.391",
+    "ruff>=0.8.6",
+]
 
 [tool.ruff.lint]
 select = [

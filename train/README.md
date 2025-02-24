@@ -1,4 +1,5 @@
 ```bash
+uv venv
 uv pip install setuptools wheel torch==2.5.1 packaging ninja psutil 
 uv sync
 ```
@@ -12,6 +13,10 @@ uv sync --no-build-isolation
 uv pip install -U datasets
 ```
 
+```bash
+ray start --head --node-ip-address 0.0.0.0 --dashboard-port 8265 --port 6379 --num-gpus 8
+ray job submit --address="http://127.0.0.1:8265" -- /bin/bash examples/script/train_ppo_qwen_base_math_lv35_1_node.sh
+```
 
 
 <!-- <div align="center">
