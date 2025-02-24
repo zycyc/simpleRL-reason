@@ -1,4 +1,20 @@
-<div align="center">
+```bash
+uv pip install setuptools wheel torch==2.5.1 packaging ninja psutil 
+uv sync
+```
+
+maybe try this if above doesn't work
+
+```bash
+uv venv
+uv pip install setuptools wheel torch==2.5.1 packaging ninja psutil 
+uv sync --no-build-isolation
+uv pip install -U datasets
+```
+
+
+
+<!-- <div align="center">
     <img alt="OpenRLHF logo" src="./docs/logo.png" style="height: 140px;" />
 </div>
 <div align="center">
@@ -413,4 +429,4 @@ Our project would also like to thank [ColossalChat](https://github.com/hpcaitech
 
 ______________________________________________________________________
 
-*OpenRLHF © 2024 OpenRLHF. All Rights Reserved.*
+*OpenRLHF © 2024 OpenRLHF. All Rights Reserved.* -->
