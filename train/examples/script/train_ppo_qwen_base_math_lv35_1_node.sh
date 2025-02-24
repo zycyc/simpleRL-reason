@@ -1,6 +1,6 @@
 
-HDFS_HOME=/data/simpleRL-reason/train
-RUN_NAME=Qwen2.5-Math-7B_ppo_from_base_math_lv35_quicker_experiment
+HDFS_HOME=/data/alan-g491/simpleRL-reason/train
+RUN_NAME=Qwen2.5-Math-7B_ppo_from_base_math_lv35_quicker_experiment_uv
 
 TOKENIZERS_PARALLELISM=True python3 openrlhf/cli/train_ppo_ray_box.py \
     --ref_num_nodes 1 \

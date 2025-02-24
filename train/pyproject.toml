@@ -1,56 +1,67 @@
+#:schema https://json.schemastore.org/pyproject.json
+
 [build-system]
-requires = [
+requires = ["setuptools", "wheel", "torch==2.5.1", "ninja", "psutil", "packaging"]
+
+
+[project]
+name = "train"
+version = "0.1.0"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "accelerate",
+    "bitsandbytes",
+    "datasets",
+    "deepspeed",
+    "einops",
+    "isort",
+    "jsonlines",
+    "loralib",
+    "vllm",
+    "optimum",
     "packaging",
-    "setuptools >= 49.4.0",
+    "peft",
+    "ray",
+    "tensorboard",
+    "torch==2.5.1",
+    "torchmetrics",
+    "tqdm",
+    "transformers",
+    "transformers_stream_generator",
+    "wandb",
+    "latex2sympy2",
+    "timeout-decorator",
+    "word2number",
     "wheel",
+    "flash-attn",
 ]
-build-backend = "setuptools.build_meta"
 
-[tool.isort]
-profile = "black"  # black-compatible
-line_length = 119  # should match black parameters
-ignore_whitespace = true  # ignore whitespace for compatibility with the initial style
-py_version = 310  # python 3.10 as a target version
-sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
-default_section = "THIRDPARTY"
-extend_skip = ["setup.py", "docs/source/conf.py"]
+[tool.uv]
+no-build-isolation-package = ["flash-attn"]
 
+[tool.setuptools]
+packages = ["openrlhf"]
 
-[tool.black]
-line_length = 119
+[tool.ruff.lint]
+select = [
+    "A",   # flake8-builtins
+    "B",   # flake8-bugbear
+    "E",   # pycodestyle
+    "F",   # Pyflakes
+    "I",   # isort
+    "PT",  # flake8-pytest-style
+    "SIM", # flake8-simplify
+    "UP",  # pyupgrade
+]
+ignore = [
+    "A003",   # builtin-attribute-shadowing
+    "SIM108", # Use the ternary operator
+    "UP007",  # Allow Optional[type] instead of X | Y
+]
 
 [tool.ruff]
-line-length = 119
+line-length = 120
+target-version = "py311"
 
-[tool.pytest.ini_options]
-# durations=0 will display all tests execution time, sorted in ascending order starting from from the slowest one.
-# -vv will also display tests with durration = 0.00s
-addopts = "--verbose --pyargs --durations=0 --strict-markers"  # always add these arguments to pytest
-testpaths = ["./tests"]  # must be an explicit path to avoid importing another "tests" module
-# directories to ignore when discovering tests
-norecursedirs = [
-    "external",
-    "examples",
-    "docs",
-    "scripts",
-    "tools",
-    "tutorials",
-    "*.egg",
-    ".*",
-    "_darcs",
-    "build",
-    "CVS",
-    "dist",
-    "venv",
-    "{arch}",
-]
-# markers to select tests, use `pytest --markers` to see all available markers, `pytest -m "<marker>"` to select tests
-markers = [
-    "unit: marks unit test, i.e. testing a single, well isolated functionality (deselect with '-m \"not unit\"')",
-    "integration: marks test checking the elements when integrated into subsystems (deselect with '-m \"not integration\"')",
-    "system: marks test working at the highest integration level (deselect with '-m \"not system\"')",
-    "acceptance: marks test checking whether the developed product/model passes the user defined acceptance criteria (deselect with '-m \"not acceptance\"')",
-    "docs: mark tests related to documentation (deselect with '-m \"not docs\"')",
-    "skipduringci: marks tests that are skipped ci as they are addressed by Jenkins jobs but should be run to test user setups",
-    "pleasefixme: marks tests that are broken and need fixing",
-]
+[tool.pyright]
+typeCheckingMode = "standard"
