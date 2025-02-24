@@ -1,6 +1,6 @@
 
 HDFS_HOME=/data/alan-g491/simpleRL-reason/train
-RUN_NAME=Qwen2.5-Math-7B_ppo_from_base_math_lv35_quicker_experiment_uv
+RUN_NAME=Qwen2.5-Math-7B_ppo_from_base_math_lv35_quicker_experiment_limr
 
 TOKENIZERS_PARALLELISM=True python3 openrlhf/cli/train_ppo_ray_box.py \
     --ref_num_nodes 1 \
@@ -32,7 +32,7 @@ TOKENIZERS_PARALLELISM=True python3 openrlhf/cli/train_ppo_ray_box.py \
     --actor_learning_rate 5e-7 \
     --critic_learning_rate 9e-6 \
     --init_kl_coef 0.01 \
-    --prompt_data  data/math_level3to5_data_processed_with_qwen_prompt.json \
+    --prompt_data  data/limr_processed_with_qwen_prompt.json \
     --input_key input \
     --normalize_reward \
     --flash_attn \

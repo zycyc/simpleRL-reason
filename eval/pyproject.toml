@@ -1,0 +1,69 @@
+#:schema https://json.schemastore.org/pyproject.json
+
+[build-system]
+requires = ["setuptools", "wheel", "ninja", "psutil", "packaging", "torch==2.4.0"]
+
+[project]
+name = "eval"
+version = "0.1.0"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "vllm",
+    "tqdm",
+    "datasets",
+    "torch==2.5.1",
+    "torchmetrics",
+    "transformers",
+    "typing-extensions",
+    "python-dateutil",
+    "flash-attn",
+    "word2number",
+    "Pebble",
+    "timeout-decorator",
+    "wandb",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "deepspeed",
+    "latex2sympy2",
+    "sympy",
+    "antlr4-python3-runtime",
+    "accelerate>=0.26.0",
+]
+
+[tool.uv]
+no-build-isolation-package = ["flash-attn"]
+
+[tool.setuptools]
+packages = []
+
+# https://docs.astral.sh/uv/concepts/projects/dependencies/#development-dependencies
+[dependency-groups]
+dev = [
+    "pyright==1.1.391",
+    "ruff>=0.8.6",
+]
+
+[tool.ruff.lint]
+select = [
+    "A",   # flake8-builtins
+    "B",   # flake8-bugbear
+    "E",   # pycodestyle
+    "F",   # Pyflakes
+    "I",   # isort
+    "PT",  # flake8-pytest-style
+    "SIM", # flake8-simplify
+    "UP",  # pyupgrade
+]
+ignore = [
+    "A003",   # builtin-attribute-shadowing
+    "SIM108", # Use the ternary operator
+    "UP007",  # Allow Optional[type] instead of X | Y
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.pyright]
+typeCheckingMode = "standard"
