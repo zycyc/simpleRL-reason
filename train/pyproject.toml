@@ -1,7 +1,7 @@
 #:schema https://json.schemastore.org/pyproject.json
 
 [build-system]
-requires = ["setuptools", "wheel", "torch==2.5.1", "ninja", "psutil", "packaging"]
+requires = ["setuptools", "wheel", "torch==2.4.0", "ninja", "psutil", "packaging"]
 
 
 [project]
