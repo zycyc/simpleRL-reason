@@ -24,8 +24,9 @@ python3 -u math_eval.py \
     --top_p 1 \
     --start 0 \
     --end -1 \
-    --save_outputs 
-# used to have --use_vllm for above, but doesn't work with sharded checkpoints??
+    --save_outputs \
+    --use_vllm
+# used to have --use_vllm for above, but doesn't work with sharded checkpoints?? deepspeed 0.16.4 saves shards, which doesn't work with vllm, use deepspeed 0.15.0
 
 # # English multiple-choice datasets
 # DATA_NAME="aqua,sat_math,mmlu_stem"

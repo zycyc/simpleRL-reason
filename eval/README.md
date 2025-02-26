@@ -1,4 +1,9 @@
-### Requirements
+```bash
+uv pip install setuptools wheel torch==2.4.0 packaging ninja psutil 
+uv sync
+```
+
+<!-- ### Requirements
 You can install the required packages with the following command:
 ```bash
 cd latex2sympy
@@ -56,4 +61,4 @@ bash sh/eval.sh $PROMPT_TYPE $MODEL_NAME_OR_PATH $OUTPUT_DIR
 ```
 
 ## Acknowledgement
-The codebase is adapted from [math-evaluation-harness](https://github.com/ZubinGou/math-evaluation-harness).
+The codebase is adapted from [math-evaluation-harness](https://github.com/ZubinGou/math-evaluation-harness). -->

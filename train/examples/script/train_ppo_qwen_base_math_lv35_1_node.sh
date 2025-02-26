@@ -2,7 +2,7 @@
 HDFS_HOME=/data/alan-g491/simpleRL-reason/train
 RUN_NAME=Qwen2.5-Math-7B_ppo_from_base_math_lv35_quicker_experiment_limr
 
-TOKENIZERS_PARALLELISM=True python3 openrlhf/cli/train_ppo_ray_box.py \
+uv run openrlhf/cli/train_ppo_ray_box.py \
     --ref_num_nodes 1 \
     --ref_num_gpus_per_node 2 \
     --reward_num_nodes 0 \
@@ -45,3 +45,8 @@ TOKENIZERS_PARALLELISM=True python3 openrlhf/cli/train_ppo_ray_box.py \
     --wandb_run_name $RUN_NAME \
     --ckpt_path $HDFS_HOME/checkpoints/$RUN_NAME  \
     --max_ckpt_num 20000
+
+# a step = 1024 samples that's rollouted
+# if we're training on gsm8k, which is about 8 steps to learn the entire dataset
+# 20 episodes (times to learn the entire dataset) = 20 * 8 = 160 steps
+# save every 4 steps, so 160 / 4 = 40 checkpoints

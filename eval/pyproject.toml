@@ -8,10 +8,10 @@ name = "eval"
 version = "0.1.0"
 requires-python = ">=3.11,<3.12"
 dependencies = [
-    "vllm",
+    "vllm==0.5.4",
     "tqdm",
     "datasets",
-    "torch==2.5.1",
+    "torch==2.4.0",
     "torchmetrics",
     "transformers",
     "typing-extensions",
@@ -24,7 +24,7 @@ dependencies = [
     "matplotlib",
     "numpy",
     "pandas",
-    "deepspeed",
+    "deepspeed==0.15.0",
     "latex2sympy2",
     "sympy",
     "antlr4-python3-runtime",
